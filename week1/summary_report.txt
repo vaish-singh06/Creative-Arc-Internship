@@ -1,0 +1,12 @@
+Column Analyzed: Age
+Total Records: 16
+Missing Values: 4
+Mean: 32.67
+Median: 31.50
+Standard Deviation: 6.70
+Top 5 Cities:
+Delhi - 5
+Mumbai - 4
+Bangalore - 3
+Pune - 2
+Chennai - 1
