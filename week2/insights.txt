@@ -1,0 +1,35 @@
+TASK 3: OUTLIERS
+
+Chosen Column: Reviews
+Reason: High review counts represent genuinely popular apps.
+Action: Capped instead of removing.
+Other numeric columns were not modified to preserve business meaning.
+
+TASK 5: EDA INSIGHTS
+
+1. Category Distribution:
+Family and Game categories are highly competitive.
+This indicates saturation and high entry barriers.
+
+2. Free vs Paid:
+Free apps dominate the Play Store.
+Revenue is likely driven by ads rather than downloads.
+
+3. Rating vs Reviews:
+Higher reviews do not always mean higher ratings.
+Popularity and quality are not perfectly correlated.
+
+4. Unexpected Insight:
+Paid apps have slightly higher average ratings.
+Users may expect better quality from paid apps.
+
+TASK 6: THINKING QUESTIONS
+
+Q1:
+Removing apps with missing ratings introduces survivorship bias.
+New or niche apps would be unfairly excluded, skewing analysis toward established apps.
+
+Q2:
+More data is not always better.
+Unclean data can mislead models and decisions.
+Clean, well-understood data produces more reliable insights.
