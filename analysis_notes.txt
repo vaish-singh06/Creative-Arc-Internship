@@ -1,0 +1,55 @@
+Task 1 — Data Understanding
+
+Dataset Shape, Columns & Types
+After loading the dataset:
+• Rows: ~303 (depending on version)
+• Columns: ~14
+• Target Column: target
+• Feature Columns: age, trestbps, chol, thalach, oldpeak, cp, thal, slope, restecg, etc.
+
+Target Column
+target (0 = no disease, 1 = disease)
+
+Feature Characteristics
+• Numerical features representing medical measurements
+• Encoded categorical features representing symptom categories
+• No single feature alone predicts the target strongly
+Minimal preprocessing applied:
+• checked missing values
+• basic encoding already provided in the dataset
+• scaling only applied for KNN
+• train/validation split applied
+
+Task 2 — Bias–Variance Diagnosis
+
+After training the required models, I compared training accuracy vs validation accuracy for each.
+Decision Tree without depth limit achieved near-perfect training accuracy but noticeably lower validation accuracy. The accuracy gap indicates high variance and overfitting because the tree memorizes training patterns including noise. When max_depth was manually tuned, reducing depth lowered variance and improved validation performance, but too small depth led to underfitting.
+KNN showed opposite behavior. For small K values (like K=1 or 3), train accuracy was high and validation accuracy was lower, indicating variance. As K became larger (10–30), both accuracies dropped toward a similar lower value, indicating higher bias.
+Random Forest reduced variance compared to Decision Tree. Its training accuracy was still high, but validation accuracy was closer and the gap was smaller. This matches theory: averaging multiple decorrelated trees reduces model variance. RF improves generalization by bootstrapping samples and features, preventing individual tree memorization.
+Summary:
+• High variance model: Decision Tree (unrestricted)
+• High bias model: KNN at high K values
+• Balanced model: Random Forest
+
+Task 3 — Controlled Hyperparameter Experiments
+
+For Decision Tree, the hyperparameter was max_depth. At small depths (1–2), underfitting occurred: both train and validation accuracy were low and close. Overfitting started around depths ≥ 7–10: train accuracy approached 100% while validation accuracy decreased. The optimal region was mid-depth where validation accuracy peaked before the divergence.
+For KNN, the hyperparameter was K. At K=1, the model memorized training data (high variance). As K increased, validation accuracy improved until a peak (moderate K). Larger K (>20) caused underfitting: both accuracies decreased because averaging too many neighbors oversimplified the decision boundary.
+For Random Forest, the hyperparameter was n_estimators. With low estimators (10–50), model instability caused fluctuations in validation accuracy. Increasing trees improved generalization and reduced variance through averaging. Beyond ~150–200 trees, improvements plateaued, confirming diminishing returns.
+I confirmed underfitting/overfitting by comparing numerical scores and visually from accuracy curves. Underfitting = low scores for both splits. Overfitting = high train / low validation gap. Peaked validation accuracy indicated optimal complexity region.
+
+Task 4 — Unsupervised Learning (K-Means)
+
+K-Means was applied on the dataset without labels. The elbow method plot showed decreasing inertia with increasing K. Inertia always decreases because adding more clusters reduces within-cluster distances, eventually approaching zero as each point becomes its own cluster. However, inertia alone cannot tell the best K because it always decreases monotonically.
+Silhouette score provided more useful information because it measures both cohesion (within-cluster) and separation (between-cluster). The best K corresponded to the highest silhouette value. The chosen K balances compact clusters and separation.
+K-Means can fail on this dataset due to non-spherical structure, overlapping classes, and different feature scales. Heart disease patterns are not purely Euclidean clusters; they depend on conditional and medical relationships which are not captured well by simple distance-based clustering.
+
+Task 5 — Thinking Task (Anti-GPT)
+
+Q1 — If two models give similar validation accuracy, how to decide which one to deploy? (150+ words)
+
+Validation accuracy alone is not enough for deployment because real-world systems require consideration of operational constraints. I would compare inference time, data requirements, interpretability, stability under distribution shift, and model robustness. For example, a simpler model such as logistic regression or a shallow decision tree may be preferred over Random Forest or KNN if interpretability and speed are important, such as in medical decision support. On the other hand, if the priority is predictive performance and resources allow it, an ensemble like Random Forest may be more suitable. I would also evaluate how the model behaves on rare or borderline cases, not just average cases. Memory footprint matters if the model is deployed on small devices. Maintenance cost matters because simpler models require fewer updates and retraining cycles. Finally, I would analyze calibration and probabilistic outputs, since good calibration may be more valuable than raw accuracy in high-stakes domains like healthcare. Overall, deployment requires multi-dimensional reasoning beyond validation accuracy.
+
+Q2 — Why is accuracy a misleading metric? (150+ words)
+
+Accuracy treats all errors as equal and ignores class proportions, error asymmetry, and the nature of the dataset. In the heart disease dataset, a small error in predicting diseased patients may lead to severe real-world consequences, while misclassifying a healthy patient is less severe. Accuracy does not reflect this asymmetry, and two models with equal accuracy can behave very differently in practice. Additionally, accuracy hides confusion matrix structure. A model can achieve high accuracy simply by predicting the majority class in an imbalanced dataset, without actually learning meaningful patterns. Medical datasets often have overlapping features and borderline cases, leading to uncertainty that accuracy cannot quantify. Metrics such as precision, recall, F1-score, ROC-AUC, or calibration error provide more insight. For example, recall on the disease-positive class matters more clinically because missing true positives means failing to detect patients who actually need treatment. Therefore accuracy alone can give a false sense of performance and should not be used as the sole metric for evaluation or deployment.
